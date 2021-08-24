@@ -214,6 +214,10 @@ export default {
     getItem: async (req, res) => {
         let {id, other = null} = req.query
 
+        // console.log('\n')
+        // console.log(req.query)
+        // console.log('\n')
+
         if(!id){
             res.json({error: 'Sem produto'});
             return;
@@ -228,7 +232,7 @@ export default {
             include: [{
                 model: User,
                 duplicating: false,
-                attributes: ['nmuser', 'email']
+                attributes: ['nmuser', 'email', 'iduser']
             },{
                 model: Category,
                 attributes: ['dscat', 'slug'],
@@ -255,7 +259,6 @@ export default {
             }
         });
 
-
         let images = []
         for(let i in tempImages){
             images.push({
@@ -270,7 +273,7 @@ export default {
             const otherData = await Ad.findAll({
                 raw:true,
                 where: {
-                    iduser: item.iduser,
+                    iduser: item['user.iduser'],
                     adstatus: true
                 }
             })
