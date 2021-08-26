@@ -165,7 +165,7 @@ export default {
         
         let total = 0;
         if(q){
-            filters.where.title = {[Op.iLike]: `%${q}`};
+            filters.where.title = {[Op.iLike]: `%${q}%`};
         }
 
         if(cat){
