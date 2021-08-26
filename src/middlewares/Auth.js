@@ -3,7 +3,7 @@ import User from '../models/Users.js'
 export default {
     private: async (req, res, next) => {
         if(!req.query.token && !req.body.token){
-            res.json({notAllowed: true});
+            res.json({error: {notAllowed: true}});
             return;
         }
 
@@ -17,14 +17,14 @@ export default {
         }
 
         if(token == ''){
-            res.json({notAllowed: true});
+            res.json({error: {notAllowed: true}});
             return;
         }
 
         const user = await User.findOne({where: {utoken:token}})
         
         if(!user){
-            res.json({notAllowed: true});
+            res.json({error: {notAllowed: true}});
             return;
         }
 

@@ -71,6 +71,8 @@ export default {
     addAction: async (req, res) => {
         let {title, price, priceneg, desc, cat, token} = req.body;
         const user = await User.findOne({
+            raw:true,
+            attributes: ['iduser', 'idstate'],
             where:{
                 utoken:token
             }
@@ -78,12 +80,6 @@ export default {
 
         if(!title || !cat){
             res.status(400).json({error: 'Título e/ou Categoria não foram preenchidos'});
-            return;
-        }
-
-        const category = await Category.findByPk(cat)
-        if(!category){
-            res.status(400).json({error: 'Categoria inexistente'})
             return;
         }
 
@@ -96,7 +92,6 @@ export default {
 
         Ad.sequelize.transaction(async () => {
             await Ad.create({
-
                 adstatus: true,
                 iduser: user.iduser,
                 idstate: user.idstate,
@@ -107,52 +102,43 @@ export default {
                 priceneg: (priceneg == "true") ? true : false,
                 description: desc,
                 adviews: 0
-            },{returning: ['idad']})
-
-            .then(result => {
+            })
+            .then(async result => {
 
                 let idad = result.dataValues.idad;
 
-                Images.sequelize.transaction(async () => {
-                    if(req.files && req.files.img){
-                        if(req.files.img.length == undefined){
-                            if(['image/jpeg', 'image/jpg', 'image/png'].includes(req.files.img.mimetype)){
-                                let url = await addImage(req.files.img.data);
-                                await Images.create({
-                                    idad,
-                                    url,
-                                    flimage: true,
-                                })
-                            }
-                        }else {
-                            for(let i = 0; i < req.files.img.length; i++){
-                                if(['image/jpeg', 'image/jpg', 'image/png'].includes(req.files.img[i].mimetype)){
-                                    let url = await addImage(req.files.img[i].data);
-                                    if( i = 0 ){
-                                        await Images.create({
-                                            idad,
-                                            url,
-                                            flimage: true,
-                                        })
-                                    }else{
-                                        await Images.create({
-                                            idad,
-                                            url,
-                                            flimage: false,
-                                        })
-                                    }
+                if(req.files && req.files.img){
+                    if(req.files.img.length == undefined){
+                        if(['image/jpeg', 'image/jpg', 'image/png'].includes(req.files.img.mimetype)){
+                            let url = await addImage(req.files.img.data);
+                            await Images.create({
+                                idad,
+                                url,
+                                flimage: true,
+                            })
+                        }
+                    }else {
+                        for(let i = 0; i < req.files.img.length; i++){
+                            if(['image/jpeg', 'image/jpg', 'image/png'].includes(req.files.img[i].mimetype)){
+                                let url = await addImage(req.files.img[i].data);
+                                if( i == 0 ){
+                                    await Images.create({
+                                        idad,
+                                        url,
+                                        flimage: true,
+                                    })
+                                }else{
+                                    await Images.create({
+                                        idad,
+                                        url,
+                                        flimage: false,
+                                    })
                                 }
                             }
                         }
                     }
-                }).catch(err => {
-                    let erro = new Error;
-                    res.status(400).send(err)
-                    return erro;
-                }) 
-
+                }
                 res.json({id: idad});
-
             })
         }).catch(err => res.status(400).send(err))
     },
