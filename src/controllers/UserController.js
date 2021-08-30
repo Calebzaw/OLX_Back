@@ -35,7 +35,7 @@ Ad.belongsTo(User, {
 
 export default {
     getStates: async (req, res) => {
-        State.findAll({})
+        State.findAll({raw: true})
             .then(states=>res.status(200).json(states))
             .catch(err=>res.status(400).send(err))
     },
