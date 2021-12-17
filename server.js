@@ -27,5 +27,5 @@ mongoose.connection.on('error', (error) => {
     console.log('Erro:', error.message)
 })
 
-db.authenticate()
+db.sync({force: true})
 server.listen(process.env.PORT, () => console.log(`-- Servidor inicado em ${process.env.BASE}`))

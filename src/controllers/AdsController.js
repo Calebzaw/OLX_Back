@@ -31,10 +31,6 @@ export const addAction = async (req, res) => {
         }
     }
 
-    if(newAd.images.length > 0){
-        newAd.images[0].default = true;
-    }
-
     const info = await newAd.save();
     
     await client.set(`${user.iduser}.${user.numberAds}`, `${info._id}`)
